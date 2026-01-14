@@ -1,22 +1,30 @@
-# OpenCoder: the open source version of Claude Code
+# OpenCoder: the open source version of Claude Code (Kthulu Edition)
 
-Try it out:
+## Installation
+
+To install the latest version with Kthulu integration:
+
+### From NPM (if published)
 
 ```bash
 npx opencoder@latest
 ```
 
-```bash
-bunx opencoder@latest
-```
+### Build from Source
 
-Or try the beta channel:
+Since this is a custom fork, you may want to build from source:
+
 ```bash
-npx opencoder@next
+git clone <this-repo-url>
+cd opencoder
+bun install
+bun run build
+npm install -g .
 ```
 
 ## Overview
 
+- **Native Kthulu Integration**: Includes [Kthulu Go](https://github.com/pmaojo/kthulu-go) binary and MCP tools out of the box.
 - Complete Claude Code replacement with similar UI and UX
 - Built on top of the Vercel AI SDK. Fully compatible with the AI SDK model.
 - Supports any LLM providers that the AI SDK supports (OpenAI, Anthropic, Google, etc.)
@@ -74,6 +82,7 @@ OpenCoder has a cross-platform shell that supports Windows, Linux, and MacOS. Po
 
 
 ## Available MCP tools
+- **Kthulu**: AI-Powered Software Foundry tools (Native)
 - Playwright
 - Web search
 

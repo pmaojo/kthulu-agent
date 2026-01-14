@@ -8,6 +8,23 @@ import { BraveSearchClient } from "@agentic/brave-search"
 import { SafeSearchType, search } from "duck-duck-scrape"
 import type { CoderTool } from "@/tools/ai.js"
 import React from "react"
+import { fileURLToPath } from "node:url"
+import { dirname, join } from "node:path"
+
+export async function kthulu(): Promise<Record<string, CoderTool>> {
+  const __dirname = dirname(fileURLToPath(import.meta.url))
+  const binaryPath = join(__dirname, "..", "bin", "kthulu")
+
+  const transport = new Experimental_StdioMCPTransport({
+    command: binaryPath,
+    args: ["mcp"],
+  })
+  const client = await experimental_createMCPClient({
+    name: "kthulu",
+    transport,
+  })
+  return await client.tools()
+}
 
 export async function playwright({
   executablePath,

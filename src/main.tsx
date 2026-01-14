@@ -19,6 +19,7 @@ import React from "react"
 import { tools } from "./tools/tools.js"
 import { setTimeout } from "node:timers/promises"
 import { createCoder } from "@/core.js"
+import { playIntroSound } from "@/lib/sound.js"
 
 dotenv.config()
 
@@ -73,5 +74,7 @@ Working directory: ${chalk.green(env.cwd)}`,
     ),
   )
 }
+
+playIntroSound()
 
 createCoder(config, command)

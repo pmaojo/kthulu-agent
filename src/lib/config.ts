@@ -1,5 +1,6 @@
 import type { Config } from "@/lib.js"
 import { env } from "@/lib/env.js"
+import { kthulu } from "@/mcp.js"
 import { resolve } from "node:path"
 import { createJiti } from "jiti"
 import { anthropic, createAnthropic } from "@ai-sdk/anthropic"
@@ -70,7 +71,14 @@ globalThis.createOpenAICompatible = createOpenAICompatible2
 globalThis.createGoogleGenerativeAI = createGoogleGenerativeAI
 globalThis.google = google
 
-export const config = ((await loadConfig(`${env.cwd}/coder.config.ts`)) ||
+const userConfig = ((await loadConfig(`${env.cwd}/coder.config.ts`)) ||
   (await loadConfig(`${env.cwd}/coder.config.js`)) ||
   (await loadConfig(`${env.cwd}/coder.config.tsx`)) ||
   {}) as Config
+
+if (!userConfig.mcp) {
+  userConfig.mcp = []
+}
+userConfig.mcp.push(kthulu())
+
+export const config = userConfig

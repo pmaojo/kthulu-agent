@@ -104,12 +104,12 @@ export function AutoUpdater() {
   const theme = getTheme()
 
   useEffect(() => {
-    if (shouldUpdateGlobal && import.meta.env.PROD) {
+    if (shouldUpdateGlobal && import.meta.env.PROD && !import.meta.env.TEST) {
       update.mutate()
     }
   }, [shouldUpdateGlobal])
   useEffect(() => {
-    if (shouldUpdateCwd && import.meta.env.PROD) {
+    if (shouldUpdateCwd && import.meta.env.PROD && !import.meta.env.TEST) {
       updateCwd.mutate()
     }
   }, [shouldUpdateCwd])

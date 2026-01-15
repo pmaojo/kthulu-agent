@@ -8,6 +8,101 @@ import { BraveSearchClient } from "@agentic/brave-search"
 import { SafeSearchType, search } from "duck-duck-scrape"
 import type { CoderTool } from "@/tools/ai.js"
 import React from "react"
+import path from "node:path"
+import { existsSync, chmodSync } from "node:fs"
+import { env } from "@/lib/env.js"
+
+function getKthuluBinaryPath() {
+  const rootDir = env.cwd
+  // We need to find the bin directory relative to the package root
+  // In dev/source: ./bin/kthulu-linux-x64
+  // In prod/dist: ../bin/kthulu-linux-x64 (relative to dist/mcp.js)
+  // But env.cwd should point to the user's CWD or package root.
+  // Let's try to locate it relative to __dirname equivalent or well-known locations.
+
+  // Assuming the standard structure where 'bin' is at the root of the package
+  // and we are running from somewhere inside.
+
+  const platform = process.platform
+  const arch = process.arch
+
+  let binaryName = "kthulu"
+  if (platform === "win32") {
+    binaryName += ".exe"
+  } else if (platform === "linux") {
+    binaryName += "-linux"
+  } else if (platform === "darwin") {
+    binaryName += "-darwin"
+  }
+
+  if (arch === "x64") {
+    binaryName += "-x64"
+  } else if (arch === "arm64") {
+    binaryName += "-arm64"
+  }
+
+  // Fallback for this specific task where we only have linux-x64
+  if (platform === "linux" && arch === "x64") {
+      binaryName = "kthulu-linux-x64"
+  }
+
+  // Try to find the binary in likely locations
+  // 1. In the 'bin' folder relative to the current working directory (dev)
+  // 2. In the 'bin' folder relative to the module file (dist)
+
+  const possiblePaths = [
+      path.join(process.cwd(), "bin", binaryName),
+      path.join(path.dirname(new URL(import.meta.url).pathname), "..", "bin", binaryName),
+      // Specific for the sandbox structure if needed
+      path.join(process.cwd(), "node_modules", "opencoder", "bin", binaryName)
+  ]
+
+  // Since we are in the repo root in this environment:
+  possiblePaths.unshift(path.resolve("bin", binaryName))
+
+  for (const p of possiblePaths) {
+      if (existsSync(p)) {
+          return p
+      }
+  }
+
+  return null
+}
+
+export async function kthulu(): Promise<Record<string, CoderTool>> {
+  const binaryPath = getKthuluBinaryPath()
+
+  if (!binaryPath) {
+    console.warn("Kthulu binary not found. Skipping Kthulu MCP tools.")
+    return {}
+  }
+
+  try {
+    // Ensure executable
+    if (process.platform !== "win32") {
+        try {
+            chmodSync(binaryPath, "755")
+        } catch (e) {
+            // Ignore if we can't chmod, might already be executable
+        }
+    }
+
+    const transport = new Experimental_StdioMCPTransport({
+      command: binaryPath,
+      args: ["mcp"],
+    })
+
+    const client = await experimental_createMCPClient({
+      name: "kthulu",
+      transport,
+    })
+
+    return await client.tools()
+  } catch (error) {
+    console.error("Failed to start Kthulu MCP server:", error)
+    return {}
+  }
+}
 
 export async function playwright({
   executablePath,

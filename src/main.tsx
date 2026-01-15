@@ -20,6 +20,7 @@ import { tools } from "./tools/tools.js"
 import { setTimeout } from "node:timers/promises"
 import { createCoder } from "@/core.js"
 import { playIntroSound } from "@/lib/sound.js"
+import { kthulu } from "./mcp.js"
 
 dotenv.config()
 
@@ -63,7 +64,7 @@ if (command === "init") {
 if (import.meta.env.PROD) {
   console.log(
     boxen(
-      `Welcome to OpenCoder@${pkg.version}
+      `Welcome to OpenCoder@${pkg.version} (Kthulu Edition)
 Model: ${chalk.green(config.model?.modelId || "claude-3-5-sonnet-20241022")}
 Working directory: ${chalk.green(env.cwd)}`,
       {
@@ -74,6 +75,10 @@ Working directory: ${chalk.green(env.cwd)}`,
     ),
   )
 }
+
+// Inject Kthulu tools
+config.mcp = config.mcp || []
+config.mcp.unshift(kthulu())
 
 playIntroSound()
 
